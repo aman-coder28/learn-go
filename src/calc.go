@@ -100,11 +100,11 @@ func Restart() {
 				fmt.Printf("\n%s\n", error.Error())
 
 				Restart()
+			} else {
+				fmt.Printf("%s\n\n", result)
+
+				Restart()
 			}
-
-			fmt.Printf("%s\n\n", result)
-
-			Restart()
 
 		default:
 			os.Exit(1)

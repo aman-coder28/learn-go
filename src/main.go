@@ -13,8 +13,8 @@ func main() {
 		fmt.Printf("\n%s\n", err.Error())
 
 		Restart()
+	} else {
+		fmt.Printf("%s\n\n", result)
+		Restart()
 	}
-
-	fmt.Printf("%s\n\n", result)
-	Restart()
 }
