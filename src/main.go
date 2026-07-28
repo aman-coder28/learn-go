@@ -1,11 +1,9 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 func main() {
-	capped := capper("zeaman tig")
+	var calc = NewCalcualtor()
 
-	fmt.Printf("Hello, %s!", capped)
+	fmt.Println(calc.calculate())
 }
