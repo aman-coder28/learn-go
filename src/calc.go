@@ -18,19 +18,19 @@ type Calculator struct {
 }
 
 func (c Calculator) String() string {
-	return fmt.Sprintf("%.2f %c %.2f = ", c.first, c.opr, c.second)
+	return fmt.Sprintf("\n%.2f %c %.2f = ", c.first, c.opr, c.second)
 }
 
 func (c Calculator) Calculate() (string, error) {
 	switch c.opr {
 	case '+':
-		return fmt.Sprintf("\n%s%.2f", c.String(), c.first+c.second), nil
+		return fmt.Sprintf("%s%.2f", c.String(), c.first+c.second), nil
 	case '-':
-		return fmt.Sprintf("\n%s%.2f", c.String(), c.first-c.second), nil
+		return fmt.Sprintf("%s%.2f", c.String(), c.first-c.second), nil
 	case 'x':
-		return fmt.Sprintf("\n%s%.2f", c.String(), c.first*c.second), nil
+		return fmt.Sprintf("%s%.2f", c.String(), c.first*c.second), nil
 	case '/':
-		return fmt.Sprintf("\n%s%.2f", c.String(), c.first/c.second), nil
+		return fmt.Sprintf("%s%.2f", c.String(), divide(c.first, c.second)), nil
 	default:
 		return "0", errors.New("Error: Invalid Operator")
 	}
@@ -53,6 +53,14 @@ func NewCalcualtor() Calculator {
 	var s = get_float(read_line())
 
 	return Calculator{f, opr, s}
+}
+
+func divide(f float64, s float64) float64 {
+	if int(s) == 0 {
+		return float64(0)
+	}
+
+	return f / s
 }
 
 func read_line() string {
@@ -84,7 +92,18 @@ func Restart() {
 		case 'r':
 			ClearScreen()
 
-			NewCalcualtor().Calculate()
+			var result, error = NewCalcualtor().Calculate()
+
+			if error != nil {
+				fmt.Printf("\n%s\n", error.Error())
+
+				Restart()
+			}
+
+			fmt.Printf("%s\n\n", result)
+
+			Restart()
+
 		default:
 			os.Exit(1)
 		}
