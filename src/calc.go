@@ -30,7 +30,7 @@ func (c Calculator) Calculate() (string, error) {
 	case 'x':
 		return fmt.Sprintf("%s%.2f", c.String(), c.first*c.second), nil
 	case '/':
-		return fmt.Sprintf("%s%.2f", c.String(), divide(c.first, c.second)), nil
+		return fmt.Sprintf("%s%.2f", c.String(), Divide(c.first, c.second)), nil
 	default:
 		return "0", errors.New("error: invalid operator")
 	}
@@ -57,7 +57,7 @@ func NewCalculator() Calculator {
 	return Calculator{f, opr, s}
 }
 
-func divide(f float64, s float64) float64 {
+func Divide(f float64, s float64) float64 {
 	if s == 0 {
 		return float64(0)
 	}
@@ -94,10 +94,10 @@ func Restart() {
 		case 'r':
 			ClearScreen()
 
-			var result, error = NewCalculator().Calculate()
+			result, err := NewCalculator().Calculate()
 
 			if error != nil {
-				fmt.Printf("\n%s\n", error.Error())
+				fmt.Printf("\n%s\n", err.Error())
 
 				Restart()
 			} else {
