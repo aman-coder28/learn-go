@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	var BasicCalc = NewCalcualtor()
+	var BasicCalc = NewCalculator()
 
 	var result, err = BasicCalc.Calculate()
 

@@ -36,7 +36,7 @@ func (c Calculator) Calculate() (string, error) {
 	}
 }
 
-func NewCalcualtor() Calculator {
+func NewCalculator() Calculator {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Enter a First Number: ")
@@ -94,7 +94,7 @@ func Restart() {
 		case 'r':
 			ClearScreen()
 
-			var result, error = NewCalcualtor().Calculate()
+			var result, error = NewCalculator().Calculate()
 
 			if error != nil {
 				fmt.Printf("\n%s\n", error.Error())
