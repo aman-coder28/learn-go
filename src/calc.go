@@ -56,7 +56,7 @@ func NewCalcualtor() Calculator {
 }
 
 func divide(f float64, s float64) float64 {
-	if int(s) == 0 {
+	if s == 0 {
 		return float64(0)
 	}
 
