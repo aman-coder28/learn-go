@@ -5,20 +5,23 @@ import (
 	"unicode"
 )
 
-func cap(word string) string {
+func capitalize(word string) string {
+	if word == "" {
+		return word
+	}
+	
 	first := unicode.ToUpper(rune(word[0]))
-	others := word[1:]
-
+    others := word[1:]
+	
 	return string(first) + others
 }
 
 func capper(word string) string {
-	splitted := strings.SplitSeq(word, " ")
-	w := ""
-
-	for v := range splitted {
-		w += " " + cap(v)
+	words := strings.Fields(word)
+	
+	for i, w := range words {
+		words[i] = capitalize(w)
 	}
-
-	return w[1:]
+	
+	return strings.Join(words, " ")
 }
