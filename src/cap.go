@@ -11,7 +11,7 @@ func capitalize(word string) string {
 	}
 	
 	first := unicode.ToUpper(rune(word[0]))
-    others := word[1:]
+	others := word[1:]
 	
 	return string(first) + others
 }
