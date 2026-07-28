@@ -32,7 +32,7 @@ func (c Calculator) Calculate() (string, error) {
 	case '/':
 		return fmt.Sprintf("%s%.2f", c.String(), divide(c.first, c.second)), nil
 	default:
-		return "0", errors.New("Error: Invalid Operator")
+		return "0", errors.New("error: invalid operator")
 	}
 }
 
@@ -40,19 +40,19 @@ func NewCalcualtor() Calculator {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Enter a First Number: ")
-	var f = get_float(read_line(scanner))
+	var f = GetFloat(ReadLine(scanner))
 
 	var opr rune
 	fmt.Println("Enter an Operator (+, -, /, x): ")
 
-	if o := read_line(scanner); len(o) != 0 {
+	if o := ReadLine(scanner); len(o) != 0 {
 		opr = rune(strings.TrimSpace(o)[0])
 	} else {
 		opr = rune("*"[0])
 	}
 
 	fmt.Println("Enter a Second Number: ")
-	var s = get_float(read_line(scanner))
+	var s = GetFloat(ReadLine(scanner))
 
 	return Calculator{f, opr, s}
 }
@@ -65,13 +65,13 @@ func divide(f float64, s float64) float64 {
 	return f / s
 }
 
-func read_line(scanner *bufio.Scanner) string {
+func ReadLine(scanner *bufio.Scanner) string {
 	scanner.Scan()
 
 	return scanner.Text()
 }
 
-func get_float(s string) float64 {
+func GetFloat(s string) float64 {
 	f, err := strconv.ParseFloat(s, 64)
 
 	if err != nil {
@@ -87,7 +87,7 @@ func Restart() {
 	fmt.Println("To Restart, Press r.")
 	fmt.Println("To Quit, Press q or any character.")
 
-	res := read_line(scanner)
+	res := ReadLine(scanner)
 
 	if len(strings.TrimSpace(res)) != 0 {
 		switch res[0] {

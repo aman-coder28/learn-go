@@ -7,10 +7,10 @@ import (
 func main() {
 	var BasicCalc = NewCalcualtor()
 
-	var result, error = BasicCalc.Calculate()
+	var result, err = BasicCalc.Calculate()
 
-	if error != nil {
-		fmt.Printf("\n%s\n", error.Error())
+	if err != nil {
+		fmt.Printf("\n%s\n", err.Error())
 
 		Restart()
 	}
