@@ -5,23 +5,22 @@ import (
 	"unicode"
 )
 
-func capitalize(word string) string {
-	if word == "" {
+func capper(word string) string {
+	if len(word) > 1 {
 		return word
 	}
-	
+
 	first := unicode.ToUpper(rune(word[0]))
-	others := word[1:]
-	
-	return string(first) + others
+
+	return string(first) + word[1:]
 }
 
-func capper(word string) string {
+func Capitalize(word string) string {
 	words := strings.Fields(word)
-	
+
 	for i, w := range words {
-		words[i] = capitalize(w)
+		words[i] = capper(w)
 	}
-	
+
 	return strings.Join(words, " ")
 }

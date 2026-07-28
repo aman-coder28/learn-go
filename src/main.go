@@ -1,9 +1,20 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	var calc = NewCalcualtor()
+	var BasicCalc = NewCalcualtor()
 
-	fmt.Println(calc.calculate())
+	var result, error = BasicCalc.Calculate()
+
+	if error != nil {
+		fmt.Printf("\n%s\n", error.Error())
+
+		Restart()
+	}
+
+	fmt.Printf("%s\n\n", result)
+	Restart()
 }
