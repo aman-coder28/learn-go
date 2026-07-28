@@ -37,20 +37,22 @@ func (c Calculator) Calculate() (string, error) {
 }
 
 func NewCalcualtor() Calculator {
+	scanner := bufio.NewScanner(os.Stdin)
+
 	fmt.Println("Enter a First Number: ")
-	var f = get_float(read_line())
+	var f = get_float(read_line(scanner))
 
 	var opr rune
 	fmt.Println("Enter an Operator (+, -, /, x): ")
 
-	if o := read_line(); len(o) != 0 {
+	if o := read_line(scanner); len(o) != 0 {
 		opr = rune(strings.TrimSpace(o)[0])
 	} else {
 		opr = rune("*"[0])
 	}
 
 	fmt.Println("Enter a Second Number: ")
-	var s = get_float(read_line())
+	var s = get_float(read_line(scanner))
 
 	return Calculator{f, opr, s}
 }
@@ -63,9 +65,7 @@ func divide(f float64, s float64) float64 {
 	return f / s
 }
 
-func read_line() string {
-	scanner := bufio.NewScanner(os.Stdin)
-
+func read_line(scanner *bufio.Scanner) string {
 	scanner.Scan()
 
 	return scanner.Text()
@@ -82,10 +82,12 @@ func get_float(s string) float64 {
 }
 
 func Restart() {
+	scanner := bufio.NewScanner(os.Stdin)
+
 	fmt.Println("To Restart, Press r.")
 	fmt.Println("To Quit, Press q or any character.")
 
-	res := read_line()
+	res := read_line(scanner)
 
 	if len(strings.TrimSpace(res)) != 0 {
 		switch res[0] {
