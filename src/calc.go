@@ -30,15 +30,21 @@ func (c Calculator) Calculate() (string, error) {
 	case 'x':
 		return fmt.Sprintf("%s%.2f", c.String(), c.first*c.second), nil
 	case '/':
+<<<<<<< HEAD
 		return fmt.Sprintf("%s%.2f", c.String(), Divide(c.first, c.second)), nil
+=======
+		if c.second == 0 {
+			return fmt.Sprintf("%s%.2f", c.String(), float32(0)), nil
+		}
+
+		return fmt.Sprintf("%s%.2f", c.String(), c.first/c.second), nil
+>>>>>>> f1ba937 (Pass Scanner from Main Func)
 	default:
 		return "0", errors.New("error: invalid operator")
 	}
 }
 
-func NewCalculator() Calculator {
-	scanner := bufio.NewScanner(os.Stdin)
-
+func NewCalculator(scanner *bufio.Scanner) Calculator {
 	fmt.Println("Enter a First Number: ")
 	var f = GetFloat(ReadLine(scanner))
 
@@ -57,6 +63,7 @@ func NewCalculator() Calculator {
 	return Calculator{f, opr, s}
 }
 
+<<<<<<< HEAD
 func Divide(f float64, s float64) float64 {
 	if s == 0 {
 		return float64(0)
@@ -65,6 +72,8 @@ func Divide(f float64, s float64) float64 {
 	return f / s
 }
 
+=======
+>>>>>>> f1ba937 (Pass Scanner from Main Func)
 func ReadLine(scanner *bufio.Scanner) string {
 	scanner.Scan()
 
@@ -81,8 +90,15 @@ func GetFloat(s string) float64 {
 	return f
 }
 
-func Restart() {
-	scanner := bufio.NewScanner(os.Stdin)
+func RunCalculator(scanner *bufio.Scanner) {
+	var calculator = NewCalculator(scanner)
+	var result, err = calculator.Calculate()
+
+	if err != nil {
+		fmt.Printf("\n%s\n", err.Error())
+	} else {
+		fmt.Printf("%s\n\n", result)
+	}
 
 	fmt.Println("To Restart, Press r.")
 	fmt.Println("To Quit, Press q or any character.")
@@ -94,18 +110,7 @@ func Restart() {
 		case 'r':
 			ClearScreen()
 
-			result, err := NewCalculator().Calculate()
-
-			if error != nil {
-				fmt.Printf("\n%s\n", err.Error())
-
-				Restart()
-			} else {
-				fmt.Printf("%s\n\n", result)
-
-				Restart()
-			}
-
+			RunCalculator(scanner)
 		default:
 			os.Exit(1)
 		}

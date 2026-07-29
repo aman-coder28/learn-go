@@ -1,20 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"bufio"
+	"os"
 )
 
 func main() {
-	var BasicCalc = NewCalculator()
+	scanner := bufio.NewScanner(os.Stdin)
 
-	var result, err = BasicCalc.Calculate()
-
-	if err != nil {
-		fmt.Printf("\n%s\n", err.Error())
-
-		Restart()
-	} else {
-		fmt.Printf("%s\n\n", result)
-		Restart()
-	}
+	RunCalculator(scanner)
 }
