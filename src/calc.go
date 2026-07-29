@@ -30,15 +30,11 @@ func (c Calculator) Calculate() (string, error) {
 	case 'x':
 		return fmt.Sprintf("%s%.2f", c.String(), c.first*c.second), nil
 	case '/':
-<<<<<<< HEAD
-		return fmt.Sprintf("%s%.2f", c.String(), Divide(c.first, c.second)), nil
-=======
 		if c.second == 0 {
 			return fmt.Sprintf("%s%.2f", c.String(), float32(0)), nil
 		}
 
 		return fmt.Sprintf("%s%.2f", c.String(), c.first/c.second), nil
->>>>>>> f1ba937 (Pass Scanner from Main Func)
 	default:
 		return "0", errors.New("error: invalid operator")
 	}
@@ -63,17 +59,6 @@ func NewCalculator(scanner *bufio.Scanner) Calculator {
 	return Calculator{f, opr, s}
 }
 
-<<<<<<< HEAD
-func Divide(f float64, s float64) float64 {
-	if s == 0 {
-		return float64(0)
-	}
-
-	return f / s
-}
-
-=======
->>>>>>> f1ba937 (Pass Scanner from Main Func)
 func ReadLine(scanner *bufio.Scanner) string {
 	scanner.Scan()
 
