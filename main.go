@@ -6,18 +6,18 @@ import (
 )
 
 func main() {
-	file, fileErr := fns.LoadFile(".env")
+	file, err := fns.LoadFile(".env")
 
-	if fileErr != nil {
-		fmt.Println(fileErr.Error())
+	if err != nil {
+		fmt.Println(err.Error())
 
 		return
 	}
 
-	input, inputErr := fns.ParseJson(file)
+	input, err := fns.ParseJson(file)
 
-	if inputErr != nil {
-		fmt.Println(inputErr.Error())
+	if err != nil {
+		fmt.Println(err.Error())
 
 		return
 	}
