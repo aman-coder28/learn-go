@@ -27,7 +27,7 @@ func ParseJson(data []byte) (*Input, error) {
 	}
 }
 
-func StingifyData(input Input) ([]byte, error) {
+func StringifyData(input Input) ([]byte, error) {
 	if data, err := json.Marshal(input); err != nil {
 		return []byte(""), err
 	} else {
