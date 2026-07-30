@@ -21,26 +21,26 @@ func LoadFile(fileName string) ([]byte, error) {
 	}
 }
 
-func GenerateKey(password string) []byte {
-	salt := make([]byte, 16)
-
-	rand.Read(salt)
-
-	return argon2.Key([]byte("some password"), salt, 3, 32*1024, 4, 32)
+func GenerateKey(password string, salt []byte) []byte {
+	return argon2.Key([]byte(password), salt, 3, 32*1024, 4, 32)
 }
 
 func Encrypt(password string, text string) string {
-	key := GenerateKey(password)
+	salt := make([]byte, 16)
+
+	if _, err := rand.Read(salt); err != nil {
+		panic(err.Error())
+	}
+
+	key := GenerateKey(password, salt)
 	plaintext := []byte(text)
 
 	block, err := aes.NewCipher(key)
-
 	if err != nil {
 		panic(err.Error())
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
-
 	if err != nil {
 		panic(err.Error())
 	}
@@ -53,11 +53,15 @@ func Encrypt(password string, text string) string {
 
 	ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
 
-	return fmt.Sprintf("%x%x", nonce, ciphertext)
+	return fmt.Sprintf("%x%x%x", salt, nonce, ciphertext)
 }
 
 func Decrypt(password string, cipherText string) string {
-	key := argon2.Key([]byte(password), []byte(cipherText[:17]), 3, 32*1024, 4, 32)
+	salt, _ := hex.DecodeString(cipherText[:32])
+	nonce, _ := hex.DecodeString(cipherText[32:56])
+	text, _ := hex.DecodeString(cipherText[56:])
+
+	key := GenerateKey(password, salt)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -69,11 +73,7 @@ func Decrypt(password string, cipherText string) string {
 		panic(err.Error())
 	}
 
-	nonce, _ := hex.DecodeString(cipherText[17:29])
-	text, _ := hex.DecodeString(cipherText[29:])
-
 	plaintext, err := aesgcm.Open(nil, nonce, text, nil)
-
 	if err != nil {
 		panic(err.Error())
 	}
