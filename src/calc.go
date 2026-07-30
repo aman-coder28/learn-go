@@ -50,7 +50,7 @@ func NewCalculator(scanner *bufio.Scanner) Calculator {
 	if o := ReadLine(scanner); len(o) != 0 {
 		opr = rune(strings.TrimSpace(o)[0])
 	} else {
-		opr = rune("*"[0])
+		opr = ''
 	}
 
 	fmt.Println("Enter a Second Number: ")
