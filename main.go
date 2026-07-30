@@ -1,15 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	fns "learning/functions"
+)
 
 func main() {
-	file, fileErr := LoadFile("../.env")
+	file, fileErr := fns.LoadFile(".env")
 
 	if fileErr != nil {
 		fmt.Println(fileErr.Error())
 	}
 
-	input, inputErr := ParseJson(file)
+	input, inputErr := fns.ParseJson(file)
 
 	if inputErr != nil {
 		fmt.Println(inputErr.Error())
@@ -17,7 +20,7 @@ func main() {
 
 	fmt.Println(input.Data)
 
-	data, err := StingifyData(*input)
+	data, err := fns.StingifyData(*input)
 
 	if err != nil {
 		fmt.Println(err.Error())

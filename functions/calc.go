@@ -1,4 +1,4 @@
-package main
+package fns
 
 import (
 	"bufio"
@@ -50,7 +50,7 @@ func NewCalculator(scanner *bufio.Scanner) Calculator {
 	if o := ReadLine(scanner); len(o) != 0 {
 		opr = rune(strings.TrimSpace(o)[0])
 	} else {
-		opr = ''
+		opr = rune(0)
 	}
 
 	fmt.Println("Enter a Second Number: ")
