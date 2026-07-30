@@ -6,7 +6,7 @@ import (
 )
 
 func capper(word string) string {
-	if len(word) > 1 {
+	if len(word) < 1 {
 		return word
 	}
 
