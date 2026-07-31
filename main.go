@@ -24,7 +24,11 @@ func main() {
 	if json, ok := fns.IsJson(string(content)); ok == true {
 		decrypted := fns.Decrypt(password, json.Data)
 
-		os.Stdout.WriteString(decrypted)
+		if _, err := os.Stdout.WriteString(decrypted); err != nil {
+			fmt.Println(err.Error())
+
+			return
+		}
 	} else {
 		encrypted := fns.Encrypt(password, string(content))
 
@@ -40,6 +44,6 @@ func main() {
 			return
 		}
 
-		fns.WriteFile(string(data))
+		fns.WriteFile(fileName, string(data))
 	}
 }

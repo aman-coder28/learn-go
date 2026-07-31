@@ -45,7 +45,7 @@ func GetArgs() string {
 	fileName := ".env"
 
 	if args := os.Args; len(args) > 1 {
-		return args[2]
+		return args[1]
 	} else {
 		return fileName
 	}
@@ -99,17 +99,23 @@ func Decrypt(password string, cipherText string) string {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println("Incrrect Password, Try Again.")
+
+		return ""
 	}
 
 	aesgcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println("Incrrect Password, Try Again.")
+
+		return ""
 	}
 
 	plaintext, err := aesgcm.Open(nil, nonce, text, nil)
 	if err != nil {
-		panic(err.Error())
+		fmt.Println("Incrrect Password, Try Again.")
+
+		return ""
 	}
 
 	return fmt.Sprintf("%s", plaintext)
