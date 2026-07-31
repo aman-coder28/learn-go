@@ -1,5 +1,5 @@
 root = true
 
-[*.{go,mod,json,.env,.local}]
+[*.{go,mod,json,env,local}]
 indent_style = space
 indent_size = 2
