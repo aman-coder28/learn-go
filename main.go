@@ -1,16 +1,47 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	fns "learning/functions"
+	"os"
 )
 
 func main() {
-	encryped := fns.Encrypt("password", "hello, how are you?")
+	fileName := fns.GetArgs()
 
-	fmt.Println(encryped)
+	content, err := fns.LoadFile(fileName)
 
-	decrypted := fns.Decrypt("password", encryped)
+	if err != nil {
+		fmt.Println(err.Error())
 
-	fmt.Println(decrypted)
+		return
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Fprintf(os.Stdin, "Enter Password: ")
+	password := fns.ReadLine(scanner)
+
+	if json, ok := fns.IsJson(string(content)); ok == true {
+		decrypted := fns.Decrypt(password, json.Data)
+
+		os.Stdout.WriteString(decrypted)
+	} else {
+		encrypted := fns.Encrypt(password, string(content))
+
+		input := fns.Input{
+			Data: encrypted,
+		}
+
+		data, err := fns.StringifyData(input)
+
+		if err != nil {
+			fmt.Println(err.Error())
+
+			return
+		}
+
+		fns.WriteFile(string(data))
+	}
 }

@@ -21,6 +21,28 @@ func LoadFile(fileName string) ([]byte, error) {
 	}
 }
 
+func IsJson(text string) (*Input, bool) {
+	if json, err := ParseJson([]byte(text)); err != nil {
+		return nil, false
+	} else {
+		return json, len(json.Data) != 0
+	}
+}
+
+func GetArgs() string {
+	fileName := ".env"
+
+	if args := os.Args; len(args) > 1 {
+		return args[2]
+	} else {
+		return fileName
+	}
+}
+
+func WriteFile(data string) {
+	os.WriteFile(".env", []byte(data), 0777)
+}
+
 func GenerateKey(password string, salt []byte) []byte {
 	return argon2.Key([]byte(password), salt, 3, 32*1024, 4, 32)
 }
