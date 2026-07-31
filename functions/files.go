@@ -11,7 +11,19 @@ import (
 	"os"
 
 	"golang.org/x/crypto/argon2"
+	"golang.org/x/term"
 )
+
+func ReadPassword() string {
+	fmt.Fprint(os.Stderr, "Enter Password: ")
+
+	password, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		panic(err)
+	}
+
+	return string(password)
+}
 
 func LoadFile(fileName string) ([]byte, error) {
 	if file, err := os.ReadFile(fileName); err != nil {

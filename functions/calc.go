@@ -111,6 +111,6 @@ func ClearScreen() {
 		cmd = exec.Command("clear")
 	}
 
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = os.Stderr
 	cmd.Run()
 }

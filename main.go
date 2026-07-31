@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	fns "learning/functions"
 	"os"
@@ -18,10 +17,9 @@ func main() {
 		return
 	}
 
-	scanner := bufio.NewScanner(os.Stdin)
+	password := fns.ReadPassword()
 
-	fmt.Fprintf(os.Stdin, "Enter Password: ")
-	password := fns.ReadLine(scanner)
+	fns.ClearScreen()
 
 	if json, ok := fns.IsJson(string(content)); ok == true {
 		decrypted := fns.Decrypt(password, json.Data)
