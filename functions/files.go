@@ -51,8 +51,8 @@ func GetArgs() string {
 	}
 }
 
-func WriteFile(data string) {
-	os.WriteFile(".env", []byte(data), 0777)
+func WriteFile(fileName string, data string) {
+	os.WriteFile(fileName, []byte(data), 0777)
 }
 
 func GenerateKey(password string, salt []byte) []byte {
