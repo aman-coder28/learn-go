@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	fns "learning/functions"
+	fns "gops/functions"
 	"os"
 )
 

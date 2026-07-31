@@ -1,4 +1,4 @@
-module learning
+module gops
 
 go 1.26.5
 

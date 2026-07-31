@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"runtime"
 
 	"golang.org/x/crypto/argon2"
 	"golang.org/x/term"
@@ -141,4 +143,15 @@ func StringifyData(input Input) ([]byte, error) {
 	} else {
 		return data, nil
 	}
+}
+
+func ClearScreen() {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		cmd = exec.Command("clear")
+	}
+	cmd.Stdout = os.Stderr
+	cmd.Run()
 }
