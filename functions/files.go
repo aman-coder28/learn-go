@@ -1,157 +1,180 @@
 package fns
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/rand"
-	"encoding/hex"
-	"encoding/json"
-	"fmt"
-	"io"
-	"os"
-	"os/exec"
-	"runtime"
+    "crypto/aes"
+    "crypto/cipher"
+    "crypto/rand"
+    "encoding/hex"
+    "encoding/json"
+    "errors"
+    "fmt"
+    "io"
+    "os"
+    "os/exec"
+    "runtime"
 
-	"golang.org/x/crypto/argon2"
-	"golang.org/x/term"
+    "golang.org/x/crypto/argon2"
+    "golang.org/x/term"
 )
 
-func ReadPassword() string {
-	fmt.Fprint(os.Stderr, "Enter Password: ")
+// Errors returned by Encrypt and Decrypt.
+var (
+    // ErrWrongPassword means the AES-GCM authentication tag failed to
+    // verify: the password is wrong, or the encrypted data is damaged.
+    ErrWrongPassword = errors.New("wrong password, or the encrypted data is damaged")
+    // ErrNotEncrypted means the input is not in the format gops writes.
+    ErrNotEncrypted = errors.New("not a gops-encrypted file")
+)
 
-	password, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		panic(err)
-	}
+// ReadPassword reads a password from the terminal without echoing it.
+func ReadPassword() (string, error) {
+    fmt.Fprint(os.Stderr, "Enter Password: ")
 
-	return string(password)
+    password, err := term.ReadPassword(int(os.Stdin.Fd()))
+    if err != nil {
+        return "", fmt.Errorf("read password: %w", err)
+    }
+
+    return string(password), nil
 }
 
 func LoadFile(fileName string) ([]byte, error) {
-	if file, err := os.ReadFile(fileName); err != nil {
-		return []byte(""), err
-	} else {
-		return file, nil
-	}
+    if file, err := os.ReadFile(fileName); err != nil {
+        return []byte(""), err
+    } else {
+        return file, nil
+    }
 }
 
 func IsJson(text string) (*Input, bool) {
-	if json, err := ParseJson([]byte(text)); err != nil {
-		return nil, false
-	} else {
-		return json, len(json.Data) != 0
-	}
+    if json, err := ParseJson([]byte(text)); err != nil {
+        return nil, false
+    } else {
+        return json, len(json.Data) != 0
+    }
 }
 
 func GetArgs() string {
-	fileName := ".env"
+    fileName := ".env"
 
-	if args := os.Args; len(args) > 1 {
-		return args[1]
-	} else {
-		return fileName
-	}
+    if args := os.Args; len(args) > 1 {
+        return args[1]
+    } else {
+        return fileName
+    }
 }
 
-func WriteFile(fileName string, data string) {
-	os.WriteFile(fileName, []byte(data), 0777)
+// WriteFile writes data to fileName, readable by the owner only.
+func WriteFile(fileName string, data string) error {
+    return os.WriteFile(fileName, []byte(data), 0600)
 }
 
 func GenerateKey(password string, salt []byte) []byte {
-	return argon2.Key([]byte(password), salt, 3, 32*1024, 4, 32)
+    return argon2.Key([]byte(password), salt, 3, 32*1024, 4, 32)
 }
 
-func Encrypt(password string, text string) string {
-	salt := make([]byte, 16)
+// Encrypt seals text with AES-256-GCM under an Argon2id key derived from
+// the password, and returns hex(salt) + hex(nonce) + hex(ciphertext).
+func Encrypt(password string, text string) (string, error) {
+    salt := make([]byte, 16)
+    if _, err := rand.Read(salt); err != nil {
+        return "", fmt.Errorf("generate salt: %w", err)
+    }
 
-	if _, err := rand.Read(salt); err != nil {
-		panic(err.Error())
-	}
+    key := GenerateKey(password, salt)
 
-	key := GenerateKey(password, salt)
-	plaintext := []byte(text)
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        return "", fmt.Errorf("create cipher: %w", err)
+    }
 
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err.Error())
-	}
+    aesgcm, err := cipher.NewGCM(block)
+    if err != nil {
+        return "", fmt.Errorf("create GCM: %w", err)
+    }
 
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
+    nonce := make([]byte, aesgcm.NonceSize())
+    if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+        return "", fmt.Errorf("generate nonce: %w", err)
+    }
 
-	nonce := make([]byte, aesgcm.NonceSize())
+    ciphertext := aesgcm.Seal(nil, nonce, []byte(text), nil)
 
-	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
-	}
-
-	ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
-
-	return fmt.Sprintf("%x%x%x", salt, nonce, ciphertext)
+    return fmt.Sprintf("%x%x%x", salt, nonce, ciphertext), nil
 }
 
-func Decrypt(password string, cipherText string) string {
-	salt, _ := hex.DecodeString(cipherText[:32])
-	nonce, _ := hex.DecodeString(cipherText[32:56])
-	text, _ := hex.DecodeString(cipherText[56:])
+// Decrypt opens a blob produced by Encrypt.
+func Decrypt(password string, cipherText string) (string, error) {
+    if len(cipherText) < 56 { // hex of the 16-byte salt and 12-byte nonce
+        return "", ErrNotEncrypted
+    }
 
-	key := GenerateKey(password, salt)
+    salt, err := hex.DecodeString(cipherText[:32])
+    if err != nil {
+        return "", ErrNotEncrypted
+    }
 
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		fmt.Println("Incrrect Password, Try Again.")
+    nonce, err := hex.DecodeString(cipherText[32:56])
+    if err != nil {
+        return "", ErrNotEncrypted
+    }
 
-		return ""
-	}
+    text, err := hex.DecodeString(cipherText[56:])
+    if err != nil {
+        return "", ErrNotEncrypted
+    }
 
-	aesgcm, err := cipher.NewGCM(block)
-	if err != nil {
-		fmt.Println("Incrrect Password, Try Again.")
+    key := GenerateKey(password, salt)
 
-		return ""
-	}
+    block, err := aes.NewCipher(key)
+    if err != nil {
+        return "", fmt.Errorf("create cipher: %w", err)
+    }
 
-	plaintext, err := aesgcm.Open(nil, nonce, text, nil)
-	if err != nil {
-		fmt.Println("Incrrect Password, Try Again.")
+    aesgcm, err := cipher.NewGCM(block)
+    if err != nil {
+        return "", fmt.Errorf("create GCM: %w", err)
+    }
 
-		return ""
-	}
+    plaintext, err := aesgcm.Open(nil, nonce, text, nil)
+    if err != nil {
+        // The authentication tag failed: the password is wrong, or the
+        // data was damaged. There is no way to tell the two apart.
+        return "", ErrWrongPassword
+    }
 
-	return fmt.Sprintf("%s", plaintext)
+    return string(plaintext), nil
 }
 
 type Input struct {
-	Data string `json:"data"`
+    Data string `json:"data"`
 }
 
 func ParseJson(data []byte) (*Input, error) {
-	var input Input
+    var input Input
 
-	if err := json.Unmarshal(data, &input); err != nil {
-		return nil, err
-	} else {
-		return &input, nil
-	}
+    if err := json.Unmarshal(data, &input); err != nil {
+        return nil, err
+    } else {
+        return &input, nil
+    }
 }
 
 func StringifyData(input Input) ([]byte, error) {
-	if data, err := json.Marshal(input); err != nil {
-		return []byte(""), err
-	} else {
-		return data, nil
-	}
+    if data, err := json.Marshal(input); err != nil {
+        return []byte(""), err
+    } else {
+        return data, nil
+    }
 }
 
 func ClearScreen() {
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd", "/c", "cls")
-	} else {
-		cmd = exec.Command("clear")
-	}
-	cmd.Stdout = os.Stderr
-	cmd.Run()
+    var cmd *exec.Cmd
+    if runtime.GOOS == "windows" {
+        cmd = exec.Command("cmd", "/c", "cls")
+    } else {
+        cmd = exec.Command("clear")
+    }
+    cmd.Stdout = os.Stderr
+    cmd.Run()
 }
