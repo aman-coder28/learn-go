@@ -1,49 +1,53 @@
 package main
 
 import (
-	"fmt"
-	fns "gops/functions"
-	"os"
+    "fmt"
+    "os"
+
+    fns "gops/functions"
 )
 
 func main() {
-	fileName := fns.GetArgs()
+    if err := run(); err != nil {
+        fmt.Fprintln(os.Stderr, "gops:", err)
+        os.Exit(1)
+    }
+}
 
-	content, err := fns.LoadFile(fileName)
+func run() error {
+    fileName := fns.GetArgs()
 
-	if err != nil {
-		fmt.Println(err.Error())
+    content, err := fns.LoadFile(fileName)
+    if err != nil {
+        return err
+    }
 
-		return
-	}
+    password, err := fns.ReadPassword()
+    if err != nil {
+        return err
+    }
 
-	password := fns.ReadPassword()
+    fns.ClearScreen()
 
-	fns.ClearScreen()
+    if json, ok := fns.IsJson(string(content)); ok {
+        decrypted, err := fns.Decrypt(password, json.Data)
+        if err != nil {
+            return err
+        }
 
-	if json, ok := fns.IsJson(string(content)); ok == true {
-		decrypted := fns.Decrypt(password, json.Data)
+        _, err = os.Stdout.WriteString(decrypted)
+        return err
+    }
 
-		if _, err := os.Stdout.WriteString(decrypted); err != nil {
-			fmt.Println(err.Error())
+    encrypted, err := fns.Encrypt(password, string(content))
+    if err != nil {
+        return err
+    }
 
-			return
-		}
-	} else {
-		encrypted := fns.Encrypt(password, string(content))
+    data, err := fns.StringifyData(fns.Input{Data: encrypted})
+    if err != nil {
+        return err
+    }
 
-		input := fns.Input{
-			Data: encrypted,
-		}
-
-		data, err := fns.StringifyData(input)
-
-		if err != nil {
-			fmt.Println(err.Error())
-
-			return
-		}
-
-		fns.WriteFile(fileName, string(data))
-	}
+    return fns.WriteFile(fileName, string(data))
 }
